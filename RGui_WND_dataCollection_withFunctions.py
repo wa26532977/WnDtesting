@@ -27,10 +27,41 @@ class WNDDataCollectionWithFunctions(QDialog):
         self.lineEdit_2.returnPressed.connect(self.sample_sn)
         self.lineEdit_7.returnPressed.connect(self.manufacture_sn)
         self.lineEdit_3.returnPressed.connect(self.get_weight)
-        self.lineEdit_3.returnPressed.connect(self.get_height)
+        self.pushButton_3.clicked.connect(self.get_weight)
+        self.lineEdit_4.returnPressed.connect(self.get_height)
+        self.pushButton_4.clicked.connect(self.get_height)
+        self.lineEdit_5.returnPressed.connect(self.get_diameter)
+        self.pushButton_5.clicked.connect(self.get_diameter)
+        self.lineEdit_8.returnPressed.connect(self.get_comments)
+        self.lineEdit_6.returnPressed.connect(self.high_light_save)
+
+    def get_comments(self):
+        self.lineEdit_6.setFocus()
+
+    def high_light_save(self):
+        self.pushButton_2.setDefault(True)
+        self.pushButton_2.setFocus()
+
+    def get_diameter(self):
+        self.lineEdit_8.setFocus()
+        ser = serial.Serial('COM4', baudrate=2400, timeout=0.1)
+        while 1:
+            data = ser.readline()
+            if data != b'':
+                break
+        self.lineEdit_8.setText(data.decode("ascii").split('+')[1][:-1])
+        ser.close()
 
     def get_height(self):
-        self.lineEdit_4.setFocus()
+        self.lineEdit_5.setFocus()
+        ser = serial.Serial('COM4', baudrate=2400, timeout=0.1)
+        while 1:
+            data = ser.readline()
+            if data != b'':
+                break
+        self.lineEdit_5.setText(data.decode("ascii").split('+')[1][:-1])
+        ser.close()
+
 
     def get_weight(self):
         try:
@@ -45,11 +76,9 @@ class WNDDataCollectionWithFunctions(QDialog):
             sizeof = ser.write(transmit.encode('ascii'))
             while 1:
                 data = ser.readline()
-                print(data)
                 if data != b'':
                     rxdata = data.decode('ascii')
                     rxdata = rxdata.split()
-                    print(rxdata)
                     try:
                         changeToFloat = float(rxdata[0])
                     except:
@@ -58,8 +87,8 @@ class WNDDataCollectionWithFunctions(QDialog):
                         print(rxdata)
                         self.lineEdit_4.setText(str(rxdata[0]))
                         self.lineEdit_4.setFocus()
+                        ser.close()
                         break
-
 
     def manufacture_sn(self):
         self.lineEdit_3.setText(str(datetime.date.today()))
@@ -80,8 +109,20 @@ class WNDDataCollectionWithFunctions(QDialog):
                     msgbox.exec()
                     return False
         else:
+
+            self.mycursor.execute("select count(*) as count from cells where sample_barcode = %s", (barcode,))
+            for db in self.mycursor:
+                if db["count"] != 1:
+                    msgbox = QtWidgets.QMessageBox(self)
+                    msgbox.setText(
+                        f"{barcode} has no pre value of the test {self.label_1.text()} ")
+                    msgbox.exec()
+                    return False
+
             self.mycursor.execute("select * from cells where sample_barcode = %s", (barcode,))
             for db in self.mycursor:
+                print("happy")
+                print(db)
                 if db["off_drain_weight"] is not None or db["off_drain_height"] is not None or \
                         db["off_drain_diameter"] is not None:
                     msgbox = QtWidgets.QMessageBox(self)
@@ -97,8 +138,10 @@ class WNDDataCollectionWithFunctions(QDialog):
             self.lineEdit_2.setFocus()
 
     def set_test_number(self):
-        self.label_1.setText(str(self.test_name))
         self.label_5.setText(str(self.template_name))
+        self.label_1.setText(str(self.test_name))
+        if self.post != "false":
+            self.label_12.setText("POST ")
 
 
 if __name__ == '__main__':
