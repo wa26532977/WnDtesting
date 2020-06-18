@@ -17,7 +17,6 @@ class NewTemplateAdd(QDialog):
         super(NewTemplateAdd, self).__init__()
         loadUi("RGui_TemplateFile_add.ui", self)
         self.tabWidget.setCurrentIndex(0)
-        # self.lineEdit_1.returnPressed.connect(self.search_radley)
         self.lineEdit_1.editingFinished.connect(self.search_radley)
         self.pushButton.clicked.connect(self.cancel_button)
         self.pushButton_5.clicked.connect(self.cancel_button)
