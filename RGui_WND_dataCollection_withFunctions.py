@@ -216,6 +216,7 @@ class WNDDataCollectionWithFunctions(QDialog):
             self.pushButton_6.setText("")
             self.pushButton_6.setEnabled(False)
 
+
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
     qt_app = WNDDataCollectionWithFunctions(post="true", test_name="test12", template_name="template1", size='cylinder')
