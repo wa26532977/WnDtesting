@@ -2,7 +2,7 @@ import sys
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QApplication, QDialog, QFileDialog
 from PyQt5.uic import loadUi
-from WeightAndDimensionSystem import RGUI_TemplateFile_add_withFunction_1
+from WeightAndDimensionSystem import RGui_WND_dataCollection_withFunctions
 import mysql.connector
 
 
@@ -33,6 +33,7 @@ class DataAddWithFunctions(QDialog):
 
     def search_in_list(self):
         search = self.lineEdit.text()
+
         if search == "":
             self.lineEdit_2.setText("")
             self.populate_list_widget()
@@ -49,27 +50,35 @@ class DataAddWithFunctions(QDialog):
                 self.listWidget.setCurrentRow(0)
                 self.lineEdit_2.setText(search)
 
-
     def item_clicked(self):
         search = self.listWidget.currentItem().text()
         self.lineEdit.setText(search)
         self.lineEdit_2.setText(search)
 
     def OK_pressed(self):
+        this_size = ""
         # change this to start measureing
-        ui = RGUI_TemplateFile_add_withFunction_1.NewTemplateAdd()
         while self.listWidget.currentItem() is None:
             msgbox = QtWidgets.QMessageBox(self)
             msgbox.setText("No item is selected, please select an item.")
             msgbox.exec()
             return
-        if self.duplicated == "Yes":
-            ui.duplicate_number(self.listWidget.currentItem().text())
+        if self.radioButton.isChecked():
+            post = False
         else:
-            ui.set_header(self.listWidget.currentItem().text())
+            post = True
+
+        self.mycursor.execute("select * from header where Test_number like %s", (str(self.lineEdit.text()),))
+        for db in self.mycursor:
+            # print(type(db))
+            # print(db)
+            this_size = db[0]
+        ui = RGui_WND_dataCollection_withFunctions.WNDDataCollectionWithFunctions(
+            post=post, test_name=str(self.lineEdit.text()), week_name=str(self.lineEdit_3.text()), size=this_size)
         self.close()
         ui.show()
         ui.exec_()
+
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)

@@ -33,7 +33,7 @@
      <x>0</x>
      <y>0</y>
      <width>910</width>
-     <height>22</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -54,20 +54,10 @@
      </property>
      <addaction name="actionAdd_New_Date_File"/>
      <addaction name="actionOpen_Date_File"/>
-     <addaction name="actionConverting_Final_Screening_Data_to_excel_Format"/>
-    </widget>
-    <widget class="QMenu" name="menuNote_File">
-     <property name="title">
-      <string>Note File</string>
-     </property>
-     <addaction name="actionAdd_New_Note_File"/>
-     <addaction name="actionOpen_Note_File"/>
     </widget>
     <addaction name="menuTemplate_File"/>
     <addaction name="separator"/>
     <addaction name="menuData_File"/>
-    <addaction name="separator"/>
-    <addaction name="menuNote_File"/>
     <addaction name="separator"/>
     <addaction name="actionPrint_2"/>
     <addaction name="separator"/>
@@ -83,6 +73,7 @@
      </property>
      <addaction name="actionBarcode_Config"/>
      <addaction name="actionBK_Power_Bank_Config"/>
+     <addaction name="actionCaliper_Scales"/>
     </widget>
     <addaction name="menuHardware"/>
     <addaction name="separator"/>
@@ -92,13 +83,13 @@
     <property name="title">
      <string>Analysis</string>
     </property>
-    <addaction name="actionSample_Data_Viewing"/>
     <addaction name="actionSample_Search"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
-     <string>Help</string>
+     <string>Report</string>
     </property>
+    <addaction name="actionOpen_Report"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuOptions"/>
@@ -183,7 +174,7 @@
   </action>
   <action name="actionBK_Power_Bank_Config">
    <property name="text">
-    <string>BK-Power Bank Config.</string>
+    <string>Weight Scales Config.</string>
    </property>
   </action>
   <action name="actionView_All_Report_And_Graph">
@@ -249,6 +240,16 @@
   <action name="actionExit_2">
    <property name="text">
     <string>Exit</string>
+   </property>
+  </action>
+  <action name="actionCaliper_Scales">
+   <property name="text">
+    <string>Caliper Scales</string>
+   </property>
+  </action>
+  <action name="actionOpen_Report">
+   <property name="text">
+    <string>Open Report</string>
    </property>
   </action>
  </widget>

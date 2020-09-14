@@ -11,7 +11,7 @@ import time
 
 class WNDDataCollectionWithFunctions(QDialog):
 
-    def __init__(self, post="false", test_name="test1", template_name="template1", size="cylinder"):
+    def __init__(self, post=False, test_name="", week_name="", size=""):
         super(WNDDataCollectionWithFunctions, self).__init__()
         loadUi("RGui_Screening_DataCollection.ui", self)
         self.checkThreadTimer = QtCore.QTimer(self)
@@ -20,7 +20,7 @@ class WNDDataCollectionWithFunctions(QDialog):
         self.checkThreadTimer_4 = QtCore.QTimer(self)
         self.post = post
         self.test_name = test_name
-        self.template_name = template_name
+        self.week_name = week_name
         self.size = size
         self.cnx = mysql.connector.connect(
             host="localhost",
@@ -46,23 +46,73 @@ class WNDDataCollectionWithFunctions(QDialog):
 
     def save_data(self):
         my_header_info = []
-        gui_ids = (1, 2, 7, 3, 4, 5, 8, 6)
-        label_ids = (1, 5, 6, 15)
-        # save all files
-        for ids in gui_ids:
-            # this is for int variables in database
-            add_header = "my_header_info.append(self.lineEdit_" + str(ids) + ".text())"
-            exec(add_header)
-        for ids in label_ids:
-            if ids == 6:
-                # this is the note, it has two label
-                my_header_info.append(self.label_6.text() + ", " + self.label_31.text())
-            else:
-                add_header = "my_header_info.append(self.label_" + str(ids) + ".text())"
+        if self.post:
+            gui_ids = (4, 5, 8, 9, 15, 1)
+            for ids in gui_ids:
+                if ids == 15:
+                    add_header = "my_header_info.append(self.label_" + str(ids) + ".text())"
+                else:
+                    add_header = "my_header_info.append(self.lineEdit_" + str(ids) + ".text())"
                 exec(add_header)
+            my_header_info.append(str(self.label_1.text()))
+            my_header_info = [x if x != "" else None for x in my_header_info]
+            print(my_header_info)
+            self.mycursor.execute("UPDATE cells set off_drain_weight = %s, off_drain_height = %s, off_drain_width = %s,"
+                                  "off_drain_thickness = %s, warning_2 = %s  where sample_barcode = %s "
+                                  "and week_name = %s", my_header_info)
+            self.cnx.commit()
 
-        my_header_info = [x if x != "" else None for x in my_header_info]
-        print(my_header_info)
+        else:
+            gui_ids = (1, 2, 7, 3, 4, 5, 8, 9, 6)
+            label_ids = (1, 5, 6, 15)
+            # save all files
+            for ids in gui_ids:
+                if ids == 9 and self.size == "cylinder":
+                    my_header_info.append("")
+                    continue
+                # this is for int variables in database
+                add_header = "my_header_info.append(self.lineEdit_" + str(ids) + ".text())"
+                exec(add_header)
+            for ids in label_ids:
+                if ids == 6:
+                    # this is the note, it has two label
+                    my_header_info.append(self.label_6.text() + ", " + self.label_31.text())
+                else:
+                    add_header = "my_header_info.append(self.label_" + str(ids) + ".text())"
+                    exec(add_header)
+
+            if "W&D" in self.week_name:
+                my_header_info.extend(("", "1"))
+            elif "W" or "M" in self.week_name:
+                my_header_info.extend((self.week_name[1:], "0"))
+            elif "CL" in self.week_name:
+                my_header_info.extend((self.week_name[2:], "0"))
+            elif self.week_name:
+                my_header_info.extend((self.week_name, "0"))
+            else:
+                my_header_info.extend(("", "0"))
+
+            if self.post:
+                my_header_info.append("1")
+            else:
+                my_header_info.append("0")
+
+            my_header_info = [x if x != "" else None for x in my_header_info]
+            print(my_header_info)
+
+            self.mycursor.execute("INSERT INTO cells (sample_barcode,sample_SN, Manufacture_Serial_Number, "
+                                  "date_measured,weight, height, width, thickness, comments, "
+                                  "week_name, testing_name, note, warning, current_week, wndwbr, post)"
+                                  "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                                  my_header_info)
+            self.cnx.commit()
+
+        ui = WNDDataCollectionWithFunctions(post=self.post, test_name=self.test_name, week_name=self.week_name,
+                                            size=self.size)
+        self.close()
+        ui.show()
+        ui.exec_()
+        # delta_weight, delta_height, delta_width, delta_thickness
 
     def get_comments(self):
         self.checkThreadTimer_4.stop()
@@ -82,7 +132,7 @@ class WNDDataCollectionWithFunctions(QDialog):
             self.checkThreadTimer_4.start(350)
 
     def read_thickness_data(self):
-        ser = serial.Serial('COM4', baudrate=2400, timeout=0.2)
+        ser = serial.Serial('COM3', baudrate=2400, timeout=0.2)
         ser.write(b'x01')
         data = ser.readline()
         try:
@@ -100,7 +150,7 @@ class WNDDataCollectionWithFunctions(QDialog):
         self.checkThreadTimer_3.start(350)
 
     def read_diameter_data(self):
-        ser = serial.Serial('COM4', baudrate=2400, timeout=0.2)
+        ser = serial.Serial('COM3', baudrate=2400, timeout=0.2)
         ser.write(b'x01')
         data = ser.readline()
         try:
@@ -120,7 +170,7 @@ class WNDDataCollectionWithFunctions(QDialog):
 
     def read_height_data(self):
         print("getting data")
-        ser = serial.Serial('COM4', baudrate=2400, timeout=0.2)
+        ser = serial.Serial('COM3', baudrate=2400, timeout=0.2)
         ser.write(b'x01')
         data = ser.readline()
         try:
@@ -136,7 +186,7 @@ class WNDDataCollectionWithFunctions(QDialog):
         self.checkThreadTimer.start(350)
 
     def get_weight_data(self):
-        ser = serial.Serial('COM3', baudrate=9600, timeout=0.020, parity=serial.PARITY_EVEN,
+        ser = serial.Serial('COM4', baudrate=9600, timeout=0.020, parity=serial.PARITY_EVEN,
                             bytesize=serial.SEVENBITS, stopbits=1)
         transmit = "SEND \r"
         ser.write(transmit.encode('ascii'))
@@ -165,8 +215,9 @@ class WNDDataCollectionWithFunctions(QDialog):
 
     def check_duplicated_barcode(self):
         barcode = self.lineEdit_1.text()
-        if self.post == "false":
-            self.mycursor.execute("select count(*) as count from cells where sample_barcode = %s", (barcode,))
+        if not self.post:
+            self.mycursor.execute("select count(*) as count from cells where sample_barcode = %s and week_name = %s"
+                                  , (barcode, str(self.label_1.text())))
             for db in self.mycursor:
                 if db["count"] != 0:
                     msgbox = QtWidgets.QMessageBox(self)
@@ -176,7 +227,8 @@ class WNDDataCollectionWithFunctions(QDialog):
                     return False
         else:
 
-            self.mycursor.execute("select count(*) as count from cells where sample_barcode = %s", (barcode,))
+            self.mycursor.execute("select count(*) as count from cells where sample_barcode = %s and week_name = %s"
+                                  , (barcode, str(self.label_1.text())))
             for db in self.mycursor:
                 if db["count"] != 1:
                     msgbox = QtWidgets.QMessageBox(self)
@@ -185,12 +237,10 @@ class WNDDataCollectionWithFunctions(QDialog):
                     msgbox.exec()
                     return False
 
-            self.mycursor.execute("select * from cells where sample_barcode = %s", (barcode,))
+            self.mycursor.execute("select * from cells where sample_barcode = %s and week_name = %s",
+                                  (barcode, str(self.label_1.text())))
             for db in self.mycursor:
-                print("happy")
-                print(db)
-                if db["off_drain_weight"] is not None or db["off_drain_height"] is not None or \
-                        db["off_drain_diameter"] is not None:
+                if db["off_drain_weight"] is not None or db["off_drain_height"] is not None or db["off_drain_width"] is not None:
                     msgbox = QtWidgets.QMessageBox(self)
                     msgbox.setText(
                         f"{barcode} already has weight and dimensions value for Post-drain in {self.label_1.text()}")
@@ -204,9 +254,12 @@ class WNDDataCollectionWithFunctions(QDialog):
             self.lineEdit_2.setFocus()
 
     def set_test_number(self):
-        self.label_5.setText(str(self.template_name))
-        self.label_1.setText(str(self.test_name))
-        if self.post != "false":
+        self.label_5.setText(str(self.test_name))
+        if self.week_name == "":
+            self.label_1.setText(str(self.test_name))
+        else:
+            self.label_1.setText(str(self.test_name) + "-" + str(self.week_name))
+        if self.post:
             self.label_12.setText("POST ")
         if self.size == "cylinder":
             self.label_38.setText("Diameter")
@@ -219,8 +272,19 @@ class WNDDataCollectionWithFunctions(QDialog):
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
-    qt_app = WNDDataCollectionWithFunctions(post="true", test_name="test12", template_name="template1", size='cylinder')
+    qt_app = WNDDataCollectionWithFunctions(post=False, test_name="14567A01", week_name="W01", size='cylinder1')
     # qt_app.getTestNumber("14665A01.txt")
     # qt_app.getTestNumber2("14575A00.txt")
     qt_app.show()
+    sys._excepthook = sys.excepthook
+
+
+    def exception_hook(exctype, value, traceback):
+        print(exctype, value, traceback)
+        sys.excepthook(exctype, value, traceback)
+        sys.exit(1)
+
+
+    sys.excepthook = exception_hook
+
     app.exec_()

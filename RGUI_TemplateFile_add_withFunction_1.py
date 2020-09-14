@@ -89,14 +89,21 @@ class NewTemplateAdd(QDialog):
                 my_header_info.append(None)
             # append note
             my_header_info.append(self.plainTextEdit.toPlainText())
+            # append sample dimensions
+            if self.radioButton_6.isChecked():
+                my_header_info.append("3")
+            elif self.radioButton_7.isChecked():
+                my_header_info.append('cylinder')
+            else:
+                my_header_info.append('cylinder')
             print(my_header_info)
             self.mycursor.execute("INSERT INTO header (lot_number, test_number, screen_file_name, sample_name, "
                                   "chemistry, transmittal_number, project_number, project_engineer, test_purpose, "
                                   "finished_date, cell_load, sample_size, date_made, date_received, date_storage_start,"
                                   " date_storage_stop, storage_temp, date_on_drain_start, date_on_drain_stop, "
-                                  "on_drain_temp, total_sample_to_be_screened, battery_cell, note) "
+                                  "on_drain_temp, total_sample_to_be_screened, battery_cell, note, sample_dimensions) "
                                   "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, "
-                                  "%s, %s, %s, %s, %s, %s, %s)", my_header_info)
+                                  "%s, %s, %s, %s, %s, %s, %s, %s)", my_header_info)
             self.cnx.commit()
             self.close()
 
@@ -145,8 +152,10 @@ class NewTemplateAdd(QDialog):
         self.lineEdit_20.setText("24")
         self.lineEdit_23.setText("24")
         self.lineEdit_5.setText(str(df.iloc[0]["Chemistry"]))
-        self.lineEdit_12.setText(str(df.iloc[0]["Mfg Date"])[0:10])
-        self.lineEdit_13.setText(str(df.iloc[0]["Receipt Date"])[0:10])
+        if df.iloc[0]["Mfg Date"] is not None:
+            self.lineEdit_12.setText(str(df.iloc[0]["Mfg Date"])[0:10])
+        if df.iloc[0]["Receipt Date"] is not None:
+            self.lineEdit_13.setText(str(df.iloc[0]["Receipt Date"])[0:10])
         # set sample name
         self.lineEdit_4.setText(str(df.iloc[0]["Manufacturer"]) + " " + str(df.iloc[0]["Item"]))
         # set finished date as today
@@ -158,7 +167,7 @@ class NewTemplateAdd(QDialog):
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
     qt_app = NewTemplateAdd()
-    qt_app.set_header("test1")
+    # qt_app.set_header("test1")
     # qt_app.getTestNumber2("14575A00.txt")
     qt_app.show()
     sys._excepthook = sys.excepthook

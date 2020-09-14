@@ -4,6 +4,7 @@ import pandas as pd
 from WeightAndDimensionSystem import RGui_WeightAndDimension_mainWindow
 from WeightAndDimensionSystem import RGUI_TemplateFile_add_withFunction_1
 from WeightAndDimensionSystem import RGui_TemplateFile_open_withFunction_1
+from WeightAndDimensionSystem import RGui_Data_add_withFunction_1
 
 
 pd.options.display.max_columns = 999
@@ -22,14 +23,15 @@ class WNDApp1(RGui_WeightAndDimension_mainWindow.Ui_WeightSys_mainWindow, QtWidg
         self.actionDupplicate_a_Template_File.triggered.connect(self.dupplicate_temple)
         self.actionAdd_New_Date_File.triggered.connect(self.add_new_datafile)
 
-    # def add_new_datafile(self):
-
+    def add_new_datafile(self):
+        ui = RGui_Data_add_withFunction_1.DataAddWithFunctions()
+        ui.show()
+        ui.exec_()
 
     def dupplicate_temple(self):
         ui = RGui_TemplateFile_open_withFunction_1.TemplateFileOpenWithFunction(duplicated="Yes")
         ui.show()
         ui.exec_()
-
 
     def create_new_template(self):
         ui = RGUI_TemplateFile_add_withFunction_1.NewTemplateAdd()
@@ -40,7 +42,6 @@ class WNDApp1(RGui_WeightAndDimension_mainWindow.Ui_WeightSys_mainWindow, QtWidg
         ui = RGui_TemplateFile_open_withFunction_1.TemplateFileOpenWithFunction()
         ui.show()
         ui.exec_()
-
 
 
 if __name__ == '__main__':

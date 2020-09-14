@@ -97,7 +97,7 @@
            </font>
           </property>
           <property name="text">
-           <string>10168-1176</string>
+           <string>14567A01-W01</string>
           </property>
          </widget>
         </item>
@@ -136,7 +136,7 @@
         </font>
        </property>
        <property name="text">
-        <string>10168-1176</string>
+        <string>14567A01</string>
        </property>
       </widget>
      </widget>
@@ -791,7 +791,7 @@
         </rect>
        </property>
        <property name="text">
-        <string>Weight Takend with Tabes</string>
+        <string>Weight Taken with Tabes</string>
        </property>
       </widget>
       <widget class="QLabel" name="label_31">
