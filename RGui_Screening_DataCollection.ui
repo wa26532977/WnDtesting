@@ -42,7 +42,7 @@
        <enum>Qt::LeftToRight</enum>
       </property>
       <property name="text">
-       <string>Weigth and Dimension</string>
+       <string>Weight and Dimension</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>

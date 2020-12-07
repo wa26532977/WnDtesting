@@ -39,6 +39,7 @@ class WDReportDataWithFunction(QDialog):
 
     def populate_data_table(self):
         self.label_10.setText(str(len(self.allItem)))
+        self.tableWidget.setRowCount(len(self.allItem))
         for index, value in enumerate(self.allItem):
             # this remove the None
             new_value = {}
@@ -86,7 +87,8 @@ class WDReportDataWithFunction(QDialog):
         if value_1 == "" or value_2 == "":
             return ""
         else:
-            return round((value_2-value_1)/value_1, 3)
+            print(value_1, value_2)
+            return round(((value_2-value_1)/value_1)*100, 3)
 
 
 if __name__ == '__main__':

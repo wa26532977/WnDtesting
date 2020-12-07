@@ -1,14 +1,11 @@
 import os
 import math
 import pandas as pd
-import time
 from PyQt5.QtWidgets import QDialog
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import Qt
 from PyQt5.uic import loadUi
-from Screening_System_PyQt5 import client
 import datetime
-from multiprocessing import Process
 import sys
 from PyQt5.QtCore import QThread
 import time

@@ -1,12 +1,10 @@
 import sys
 import datetime
-import math
 from PyQt5.QtWidgets import QDialog
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.uic import loadUi
 import mysql.connector
 import serial
-import time
 
 
 class WNDDataCollectionWithFunctions(QDialog):
@@ -18,6 +16,7 @@ class WNDDataCollectionWithFunctions(QDialog):
         self.checkThreadTimer_2 = QtCore.QTimer(self)
         self.checkThreadTimer_3 = QtCore.QTimer(self)
         self.checkThreadTimer_4 = QtCore.QTimer(self)
+        self.weight_check = 0
         self.post = post
         self.test_name = test_name
         self.week_name = week_name
@@ -129,7 +128,7 @@ class WNDDataCollectionWithFunctions(QDialog):
         else:
             self.lineEdit_9.setFocus()
             self.checkThreadTimer_4.timeout.connect(self.read_thickness_data)
-            self.checkThreadTimer_4.start(350)
+            self.checkThreadTimer_4.start(50)
 
     def read_thickness_data(self):
         ser = serial.Serial('COM3', baudrate=2400, timeout=0.2)
@@ -147,7 +146,7 @@ class WNDDataCollectionWithFunctions(QDialog):
         self.checkThreadTimer_2.stop()
         self.lineEdit_8.setFocus()
         self.checkThreadTimer_3.timeout.connect(self.read_diameter_data)
-        self.checkThreadTimer_3.start(350)
+        self.checkThreadTimer_3.start(50)
 
     def read_diameter_data(self):
         ser = serial.Serial('COM3', baudrate=2400, timeout=0.2)
@@ -166,7 +165,7 @@ class WNDDataCollectionWithFunctions(QDialog):
         print("get Hight")
         self.lineEdit_5.setFocus()
         self.checkThreadTimer_2.timeout.connect(self.read_height_data)
-        self.checkThreadTimer_2.start(350)
+        self.checkThreadTimer_2.start(50)
 
     def read_height_data(self):
         print("getting data")
@@ -183,10 +182,10 @@ class WNDDataCollectionWithFunctions(QDialog):
 
     def get_weight(self):
         self.checkThreadTimer.timeout.connect(self.get_weight_data)
-        self.checkThreadTimer.start(350)
+        self.checkThreadTimer.start(200)
 
     def get_weight_data(self):
-        ser = serial.Serial('COM4', baudrate=9600, timeout=0.020, parity=serial.PARITY_EVEN,
+        ser = serial.Serial('COM4', baudrate=9600, timeout=0.2, parity=serial.PARITY_EVEN,
                             bytesize=serial.SEVENBITS, stopbits=1)
         transmit = "SEND \r"
         ser.write(transmit.encode('ascii'))
@@ -200,10 +199,16 @@ class WNDDataCollectionWithFunctions(QDialog):
         else:
             if data == b'':
                 ser.close()
+            elif self.weight_check == 0:
+                self.weight_check = changetofloat
+            elif (changetofloat - self.weight_check)/self.weight_check > 0.2:
+                self.weight_check = changetofloat
+                print("getting wrong data")
             else:
                 print(rxdata)
                 self.lineEdit_4.setText(str(changetofloat))
                 self.lineEdit_4.setFocus()
+                self.weight_check = changetofloat
                 ser.close()
 
     def manufacture_sn(self):

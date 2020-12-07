@@ -3,7 +3,7 @@ import sys
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QApplication, QDialog, QFileDialog
 from PyQt5.uic import loadUi
-# from WeightAndDimensionSystem import RGUI_TemplateFile_add_withFunction_1
+from WeightAndDimensionSystem import RGui_WDReportData_Open_withFunction
 import mysql.connector
 
 pd.options.display.max_columns = 999
@@ -26,6 +26,7 @@ class WDReportOpenWithFunction(QDialog):
         self.populate_list_widget()
         self.lineEdit.textChanged.connect(self.search_in_list)
         self.listWidget.itemClicked.connect(self.item_clicked)
+        self.pushButton_2.clicked.connect(self.ok_pressed)
 
     def populate_list_widget(self):
         self.listWidget.clear()
@@ -51,6 +52,18 @@ class WDReportOpenWithFunction(QDialog):
     def item_clicked(self):
         search = self.listWidget.currentItem().text()
         self.lineEdit.setText(search)
+
+    def ok_pressed(self):
+        while self.listWidget.currentItem() is None:
+            msgbox = QtWidgets.QMessageBox(self)
+            msgbox.setText("No item is selected, please select an item.")
+            msgbox.exec()
+            return
+        ui = RGui_WDReportData_Open_withFunction.WDReportDataWithFunction(
+            week_name=str(self.listWidget.currentItem().text()))
+        self.close()
+        ui.show()
+        ui.exec_()
 
 
 if __name__ == '__main__':
